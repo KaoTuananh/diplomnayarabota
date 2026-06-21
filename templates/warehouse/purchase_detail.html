@@ -1,0 +1,83 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="page-header">
+  <h2>Закупка #{{ order.id }} — {{ order.supplier.name }}</h2>
+  <div>
+    {% if order.status == "draft" %}
+      <form method="post" action="{% url 'purchase_send' order.pk %}" style="display:inline">
+        {% csrf_token %}
+        <button type="submit" class="btn btn-warn">Отправить заказ</button>
+      </form>
+    {% elif order.status == "ordered" %}
+      <form method="post" action="{% url 'purchase_receive' order.pk %}" style="display:inline">
+        {% csrf_token %}
+        <button type="submit" class="btn btn-success">Принять поставку (+склад)</button>
+      </form>
+    {% endif %}
+    <a href="{% url 'purchase_list' %}" class="btn2">← Закупки</a>
+  </div>
+</div>
+
+{% if error %}
+<div class="alert alert-warn">{{ error }}</div>
+{% endif %}
+
+<div class="row">
+  <div class="col" style="max-width:300px">
+    <div class="card">
+      <table>
+        <tr><td class="muted">Поставщик</td><td>{{ order.supplier.name }}</td></tr>
+        <tr><td class="muted">Статус</td><td>{{ order.get_status_display }}</td></tr>
+        <tr><td class="muted">Создана</td><td>{{ order.created_at|date:"d.m.Y H:i" }}</td></tr>
+        <tr><td class="muted">Заказана</td><td>{{ order.ordered_at|date:"d.m.Y H:i"|default:"—" }}</td></tr>
+        <tr><td class="muted">Получена</td><td>{{ order.received_at|date:"d.m.Y H:i"|default:"—" }}</td></tr>
+        <tr><td class="muted">Создал</td><td>{{ order.created_by.username }}</td></tr>
+      </table>
+      {% if order.notes %}<div style="margin-top:8px;font-size:13px">{{ order.notes }}</div>{% endif %}
+    </div>
+  </div>
+</div>
+
+<div class="card">
+  <div class="card-title">Позиции (итого: {{ total|floatformat:2 }} ₽)</div>
+  {% if items %}
+  <table>
+    <thead><tr><th>Запчасть</th><th>Артикул</th><th>Кол-во</th><th>Цена за ед.</th><th>Сумма</th></tr></thead>
+    <tbody>
+      {% for item in items %}
+      <tr>
+        <td>{{ item.part.name }}</td>
+        <td class="muted">{{ item.part.sku }}</td>
+        <td>{{ item.quantity }}</td>
+        <td>{{ item.unit_price }} ₽</td>
+        <td>{{ item.get_line_total }} ₽</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% else %}
+  <p class="muted">Позиций нет.</p>
+  {% endif %}
+</div>
+
+{% if order.status == "draft" %}
+<div class="card">
+  <div class="card-title">Добавить позицию</div>
+  <form method="post">
+    {% csrf_token %}
+    <input type="hidden" name="add_item" value="1">
+    <div class="row">
+      {% for field in item_form %}
+      <div class="col">
+        <div class="form-group">
+          <label>{{ field.label }}</label>
+          {{ field }}
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+    <button type="submit" class="btn">Добавить позицию</button>
+  </form>
+</div>
+{% endif %}
+{% endblock %}

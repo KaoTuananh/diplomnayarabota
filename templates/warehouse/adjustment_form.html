@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="page-header">
+  <h2>{{ title }}</h2>
+  <a href="{% url 'adjustment_list' %}" class="btn2">← Назад</a>
+</div>
+<div class="card" style="max-width:580px">
+  {% if error %}<div class="alert alert-warn">{{ error }}</div>{% endif %}
+  <form method="post">
+    {% csrf_token %}
+    {% for field in form %}
+    <div class="form-group">
+      <label>{{ field.label }}</label>
+      {{ field }}
+      {% if field.errors %}<p class="err">{{ field.errors|join:", " }}</p>{% endif %}
+    </div>
+    {% endfor %}
+    <button type="submit" class="btn">Применить корректировку</button>
+  </form>
+</div>
+{% endblock %}

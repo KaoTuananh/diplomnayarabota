@@ -1,0 +1,66 @@
+{% extends "base.html" %}
+{% load status_labels %}
+{% block content %}
+<div class="card">
+  <h2>Заявки</h2>
+
+  <div class="row" style="align-items:center">
+    <div>
+      <span class="badge">Роль: {{ role }}</span>
+    </div>
+    <div>
+      <form method="get" style="display:flex;gap:10px;align-items:end;flex-wrap:wrap">
+        <div style="min-width:240px">
+          <label>Фильтр по статусу</label>
+          <select name="status">
+            <option value="">Все</option>
+            <option value="new" {% if status_filter == "new" %}selected{% endif %}>Новая</option>
+            <option value="in_work" {% if status_filter == "in_work" %}selected{% endif %}>В работе</option>
+            <option value="wait_part" {% if status_filter == "wait_part" %}selected{% endif %}>Ожидает запчасть</option>
+            <option value="done" {% if status_filter == "done" %}selected{% endif %}>Завершена</option>
+          </select>
+        </div>
+        <div>
+          <button class="btn" type="submit">Применить</button>
+          <a class="btn2" href="{% url 'dashboard' %}">Сброс</a>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <div style="margin-top:12px" class="row">
+    {% for item in counts %}
+      <div class="badge">{{ item.status|status_ru }}: {{ item.c }}</div>
+    {% endfor %}
+  </div>
+</div>
+
+<div class="card">
+  <table>
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>Клиент</th>
+        <th>Оборудование</th>
+        <th>Статус</th>
+        <th>Мастер</th>
+        <th>Дата</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for r in requests %}
+      <tr>
+        <td><a href="{% url 'request_detail' r.id %}">#{{ r.id }}</a></td>
+        <td>{{ r.client_name }}<div class="muted">{{ r.client_phone }}</div></td>
+        <td>{{ r.equipment_type }}<div class="muted">{{ r.serial_number }}</div></td>
+        <td>{{ r.get_status_display }}</td>
+        <td>{% if r.assigned_master %}{{ r.assigned_master.username }}{% else %}-{% endif %}</td>
+        <td>{{ r.created_at|date:"d.m.Y H:i" }}</td>
+      </tr>
+      {% empty %}
+      <tr><td colspan="6" class="muted">Нет заявок</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}

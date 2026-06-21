@@ -1,0 +1,87 @@
+{% extends "base.html" %}
+{% load status_labels %}
+{% block content %}
+<div class="page-header">
+  <h2>{{ client.name }}</h2>
+  <div>
+    {% if role == "manager" %}
+    <a href="{% url 'client_edit' client.pk %}" class="btn2">Редактировать</a>
+    {% endif %}
+    <a href="{% url 'client_list' %}" class="btn2">← Клиенты</a>
+  </div>
+</div>
+
+<div class="row">
+  <div class="col">
+    <div class="card">
+      <div class="card-title">Контактная информация</div>
+      <table>
+        <tr><td class="muted">Телефон</td><td>{{ client.phone|default:"—" }}</td></tr>
+        <tr><td class="muted">Email</td><td>{{ client.email|default:"—" }}</td></tr>
+        <tr><td class="muted">Адрес</td><td>{{ client.address|default:"—" }}</td></tr>
+        <tr><td class="muted">Создан</td><td>{{ client.created_at|date:"d.m.Y" }}</td></tr>
+      </table>
+      {% if client.notes %}
+      <div style="margin-top:10px;font-size:13px;color:#555">{{ client.notes }}</div>
+      {% endif %}
+    </div>
+  </div>
+  <div class="col">
+    <div class="card">
+      <div class="card-title" style="display:flex;justify-content:space-between">
+        Оборудование клиента
+        <a href="{% url 'equipment_create' %}" class="btn2 btn-sm">+ Добавить</a>
+      </div>
+      {% if client.equipment.all %}
+      <table>
+        <thead><tr><th>Тип</th><th>Модель</th><th>С/Н</th><th>Гарантия</th></tr></thead>
+        <tbody>
+          {% for eq in client.equipment.all %}
+          <tr>
+            <td><a href="{% url 'equipment_detail' eq.pk %}">{{ eq.equipment_type }}</a></td>
+            <td>{{ eq.brand }} {{ eq.model_name }}</td>
+            <td class="muted">{{ eq.serial_number|default:"—" }}</td>
+            <td>
+              {% if eq.warranty_until %}
+                {% if eq.is_warranty_active %}
+                  <span class="badge badge-done">до {{ eq.warranty_until|date:"d.m.Y" }}</span>
+                {% else %}
+                  <span class="badge badge-red">истекла</span>
+                {% endif %}
+              {% else %}—{% endif %}
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+      {% else %}
+      <p class="muted">Оборудование не добавлено.</p>
+      {% endif %}
+    </div>
+  </div>
+</div>
+
+<div class="card">
+  <div class="card-title">История ремонтов</div>
+  {% if repair_history %}
+  <table>
+    <thead>
+      <tr><th>#</th><th>Дата</th><th>Оборудование</th><th>Статус</th><th>Мастер</th></tr>
+    </thead>
+    <tbody>
+      {% for req in repair_history %}
+      <tr>
+        <td><a href="{% url 'request_detail' req.pk %}">#{{ req.id }}</a></td>
+        <td>{{ req.created_at|date:"d.m.Y" }}</td>
+        <td>{{ req.equipment_type }}</td>
+        <td><span class="badge badge-{{ req.status }}">{{ req.status|status_ru }}</span></td>
+        <td>{{ req.assigned_master.username|default:"—" }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% else %}
+  <p class="muted">Ремонтов не найдено.</p>
+  {% endif %}
+</div>
+{% endblock %}

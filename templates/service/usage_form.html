@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="card">
+  <h2>Списание запчасти по заявке #{{ obj.id }}</h2>
+  {% if error %}
+    <div class="err">{{ error }}</div>
+  {% endif %}
+  <form method="post">
+    {% csrf_token %}
+    {{ form.non_field_errors }}
+    <div class="row">
+      <div style="flex:1;min-width:260px">
+        <label>Запчасть</label>
+        {{ form.part }}
+        {{ form.part.errors }}
+      </div>
+      <div style="flex:1;min-width:260px">
+        <label>Количество</label>
+        {{ form.quantity }}
+        {{ form.quantity.errors }}
+      </div>
+    </div>
+    <div style="margin-top:12px">
+      <button class="btn" type="submit">Списать</button>
+      <a class="btn2" href="{% url 'request_detail' obj.id %}">Отмена</a>
+    </div>
+  </form>
+</div>
+{% endblock %}

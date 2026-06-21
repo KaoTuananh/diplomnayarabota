@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="page-header">
+  <h2>Закупки</h2>
+  <a href="{% url 'purchase_create' %}" class="btn">+ Создать закупку</a>
+</div>
+
+<div class="card">
+  {% if orders %}
+  <table>
+    <thead>
+      <tr><th>#</th><th>Поставщик</th><th>Статус</th><th>Создана</th><th>Заказана</th><th>Получена</th><th></th></tr>
+    </thead>
+    <tbody>
+      {% for o in orders %}
+      <tr>
+        <td><a href="{% url 'purchase_detail' o.pk %}">#{{ o.id }}</a></td>
+        <td>{{ o.supplier.name }}</td>
+        <td>
+          {% if o.status == "draft" %}<span class="badge badge-grey">Черновик</span>
+          {% elif o.status == "ordered" %}<span class="badge badge-in_work">Заказано</span>
+          {% elif o.status == "received" %}<span class="badge badge-done">Получено</span>
+          {% elif o.status == "cancelled" %}<span class="badge badge-red">Отменено</span>
+          {% endif %}
+        </td>
+        <td>{{ o.created_at|date:"d.m.Y" }}</td>
+        <td>{{ o.ordered_at|date:"d.m.Y"|default:"—" }}</td>
+        <td>{{ o.received_at|date:"d.m.Y"|default:"—" }}</td>
+        <td><a href="{% url 'purchase_detail' o.pk %}" class="btn2 btn-sm">Открыть</a></td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% else %}
+  <p class="muted">Закупок нет.</p>
+  {% endif %}
+</div>
+{% endblock %}

@@ -1,0 +1,58 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="card">
+  <h2>{{ title }}</h2>
+  <form method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+    {{ form.non_field_errors }}
+    <div class="row">
+      <div style="flex:1;min-width:260px">
+        <label>Клиент</label>
+        {{ form.client_name }}
+        {{ form.client_name.errors }}
+      </div>
+      <div style="flex:1;min-width:260px">
+        <label>Телефон</label>
+        {{ form.client_phone }}
+      </div>
+      <div style="flex:1;min-width:260px">
+        <label>E-mail</label>
+        {{ form.client_email }}
+      </div>
+    </div>
+
+    <div class="row" style="margin-top:10px">
+      <div style="flex:1;min-width:260px">
+        <label>Тип оборудования</label>
+        {{ form.equipment_type }}
+        {{ form.equipment_type.errors }}
+      </div>
+      <div style="flex:1;min-width:260px">
+        <label>Серийный номер</label>
+        {{ form.serial_number }}
+      </div>
+      <div style="flex:1;min-width:260px">
+        <label>Расположение (кабинет)</label>
+        {{ form.office_location }}
+      </div>
+    </div>
+
+    <div style="margin-top:10px">
+      <label>Описание неисправности</label>
+      {{ form.problem_description }}
+      {{ form.problem_description.errors }}
+    </div>
+
+    <div style="margin-top:10px">
+      <label>Фото</label>
+      {{ form.photo }}
+      {{ form.photo.errors }}
+    </div>
+
+    <div style="margin-top:12px">
+      <button class="btn" type="submit">Сохранить</button>
+      <a class="btn2" href="{% url 'dashboard' %}">Отмена</a>
+    </div>
+  </form>
+</div>
+{% endblock %}

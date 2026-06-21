@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="card">
+  <h2>Изменение статуса заявки #{{ obj.id }}</h2>
+  <form method="post">
+    {% csrf_token %}
+    {{ form.non_field_errors }}
+    <div style="max-width:420px">
+      <label>Статус</label>
+      {{ form.status }}
+      {{ form.status.errors }}
+    </div>
+    <div style="margin-top:10px">
+      <label>Комментарий</label>
+      {{ form.note }}
+    </div>
+    <div style="margin-top:12px">
+      <button class="btn" type="submit">Применить</button>
+      <a class="btn2" href="{% url 'request_detail' obj.id %}">Отмена</a>
+    </div>
+  </form>
+</div>
+{% endblock %}

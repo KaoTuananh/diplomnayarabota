@@ -1,0 +1,168 @@
+{% extends "base.html" %}
+{% load status_labels %}
+{% block content %}
+<div class="page-header">
+  <div>
+    <h2>Заявка #{{ obj.id }}</h2>
+    <div class="muted">Создана: {{ obj.created_at|date:"d.m.Y H:i" }}</div>
+  </div>
+  <div style="display:flex;gap:8px;flex-wrap:wrap">
+    <span class="badge badge-{{ obj.status }}">{{ obj.status|status_ru }}</span>
+    {% if obj.assigned_master %}
+      <span class="badge badge-grey">Мастер: {{ obj.assigned_master.get_full_name|default:obj.assigned_master.username }}</span>
+    {% else %}
+      <span class="badge badge-red">Мастер не назначен</span>
+    {% endif %}
+    <a href="{% url 'repair_request_pdf' obj.id %}" class="btn2 btn-sm" target="_blank">📄 PDF</a>
+  </div>
+</div>
+
+<div class="row">
+  <div class="col">
+    <div class="card">
+      <div class="card-title">Клиент</div>
+      <table>
+        <tr><td class="muted">Имя</td><td><strong>{{ obj.client_name }}</strong></td></tr>
+        <tr><td class="muted">Телефон</td><td>{{ obj.client_phone|default:"—" }}</td></tr>
+        <tr><td class="muted">Email</td><td>{{ obj.client_email|default:"—" }}</td></tr>
+      </table>
+    </div>
+  </div>
+  <div class="col">
+    <div class="card">
+      <div class="card-title">Оборудование</div>
+      <table>
+        <tr><td class="muted">Тип</td><td>{{ obj.equipment_type }}</td></tr>
+        <tr><td class="muted">Серийный №</td><td>{{ obj.serial_number|default:"—" }}</td></tr>
+        <tr><td class="muted">Локация</td><td>{{ obj.office_location|default:"—" }}</td></tr>
+      </table>
+    </div>
+  </div>
+  <div class="col">
+    <div class="card">
+      <div class="card-title">Сроки</div>
+      <table>
+        <tr><td class="muted">Создана</td><td>{{ obj.created_at|date:"d.m.Y H:i" }}</td></tr>
+        <tr><td class="muted">В работу</td><td>{{ obj.started_at|date:"d.m.Y H:i"|default:"—" }}</td></tr>
+        <tr><td class="muted">Завершена</td><td>{{ obj.completed_at|date:"d.m.Y H:i"|default:"—" }}</td></tr>
+      </table>
+    </div>
+  </div>
+</div>
+
+<div class="card">
+  <div class="card-title">Описание проблемы</div>
+  <div style="white-space:pre-wrap;font-size:14px">{{ obj.problem_description }}</div>
+  {% if obj.photo %}
+  <div style="margin-top:10px">
+    <img src="{{ obj.photo.url }}" style="max-width:400px;border-radius:10px;border:1px solid #eee">
+  </div>
+  {% endif %}
+</div>
+
+<!-- Кнопки действий -->
+<div class="card">
+  <div style="display:flex;gap:8px;flex-wrap:wrap">
+    {% if role == "manager" or role == "master" %}
+      <a class="btn" href="{% url 'request_change_status' obj.id %}">Изменить статус</a>
+      <a class="btn2" href="{% url 'worklog_add' obj.id %}">+ Запись работ</a>
+      <a class="btn2" href="{% url 'part_usage_add' obj.id %}">Списать запчасть</a>
+      <a class="btn2" href="{% url 'part_reserve_add' obj.id %}">Зарезервировать запчасть</a>
+    {% endif %}
+    {% if role == "manager" %}
+      <a class="btn2" href="{% url 'request_assign_master' obj.id %}">Назначить мастера</a>
+      <a class="btn2" href="{% url 'request_edit' obj.id %}">Редактировать</a>
+    {% endif %}
+    {% if role == "client" and obj.status == "new" %}
+      <a class="btn2" href="{% url 'request_edit' obj.id %}">Редактировать</a>
+    {% endif %}
+  </div>
+</div>
+
+<!-- История статусов -->
+<div class="card">
+  <div class="card-title">История статусов</div>
+  <table>
+    <thead><tr><th>Дата</th><th>Кто</th><th>Из</th><th>В</th><th>Комментарий</th></tr></thead>
+    <tbody>
+      {% for h in history %}
+      <tr>
+        <td>{{ h.changed_at|date:"d.m.Y H:i" }}</td>
+        <td>{{ h.changed_by.username }}</td>
+        <td><span class="badge badge-{{ h.old_status }}">{{ h.old_status|status_ru }}</span></td>
+        <td><span class="badge badge-{{ h.new_status }}">{{ h.new_status|status_ru }}</span></td>
+        <td class="muted">{{ h.note|default:"—" }}</td>
+      </tr>
+      {% empty %}
+      <tr><td colspan="5" class="muted">Нет записей</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+
+<!-- Журнал работ -->
+<div class="card">
+  <div class="card-title">Журнал работ мастера</div>
+  <table>
+    <thead><tr><th>Дата</th><th>Мастер</th><th>Часов</th><th>Описание</th></tr></thead>
+    <tbody>
+      {% for w in work_logs %}
+      <tr>
+        <td>{{ w.work_date|date:"d.m.Y" }}</td>
+        <td>{{ w.master.get_full_name|default:w.master.username }}</td>
+        <td>{{ w.hours }}</td>
+        <td style="white-space:pre-wrap">{{ w.description }}</td>
+      </tr>
+      {% empty %}
+      <tr><td colspan="4" class="muted">Нет записей</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+
+<!-- Резервы -->
+{% if role != "client" %}
+<div class="card">
+  <div class="card-title">Зарезервированные запчасти</div>
+  <table>
+    <thead><tr><th>Запчасть</th><th>Артикул</th><th>Кол-во</th><th>Кто</th><th>Дата</th><th>Статус</th></tr></thead>
+    <tbody>
+      {% for r in obj.reservations.all %}
+      <tr>
+        <td>{{ r.part.name }}</td>
+        <td class="muted">{{ r.part.sku }}</td>
+        <td>{{ r.quantity }}</td>
+        <td>{{ r.reserved_by.username }}</td>
+        <td>{{ r.reserved_at|date:"d.m.Y H:i" }}</td>
+        <td>{% if r.released %}<span class="badge badge-grey">Освобождён</span>{% else %}<span class="badge badge-in_work">Зарезервирован</span>{% endif %}</td>
+      </tr>
+      {% empty %}
+      <tr><td colspan="6" class="muted">Нет резервов</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endif %}
+
+<!-- Списания запчастей -->
+<div class="card">
+  <div class="card-title">Списания запчастей</div>
+  <table>
+    <thead><tr><th>Дата</th><th>Кто</th><th>Запчасть</th><th>Кол-во</th><th>Цена ед.</th><th>Сумма</th></tr></thead>
+    <tbody>
+      {% for u in part_usages %}
+      <tr>
+        <td>{{ u.used_at|date:"d.m.Y H:i" }}</td>
+        <td>{{ u.used_by.username }}</td>
+        <td>{{ u.part.name }} <span class="muted">({{ u.part.sku }})</span></td>
+        <td>{{ u.quantity }}</td>
+        <td>{{ u.part.unit_cost }} ₽</td>
+        <td>{{ u.quantity|floatformat:0 }}</td>
+      </tr>
+      {% empty %}
+      <tr><td colspan="6" class="muted">Нет списаний</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}

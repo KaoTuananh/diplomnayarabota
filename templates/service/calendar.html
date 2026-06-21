@@ -1,0 +1,70 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="page-header">
+  <h2>Календарь загрузки мастеров</h2>
+</div>
+
+{% if masters_load %}
+<div class="card">
+  <div class="card-title">Загрузка по мастерам (активные заявки)</div>
+  <div class="row">
+    {% for username, data in masters_load.items %}
+    <div class="col" style="min-width:260px;max-width:340px">
+      <div style="border:1px solid #e5e7eb;border-radius:10px;padding:14px">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+          <strong>{{ data.name }}</strong>
+          <span class="badge {% if data.count >= 5 %}badge-red{% elif data.count >= 3 %}badge-in_work{% else %}badge-done{% endif %}">
+            {{ data.count }} заявок
+          </span>
+        </div>
+        <!-- Простой прогресс-бар нагрузки -->
+        <div style="background:#f0f0f0;border-radius:4px;height:8px;margin-bottom:10px">
+          <div style="background:{% if data.count >= 5 %}#dc2626{% elif data.count >= 3 %}#d97706{% else %}#16a34a{% endif %};width:{% if data.count >= 10 %}100{% else %}{{ data.count }}0{% endif %}%;height:8px;border-radius:4px;transition:width .3s"></div>
+        </div>
+        {% for req in data.requests %}
+        <div style="font-size:12px;padding:5px 8px;background:#f9fafb;border-radius:6px;margin-bottom:4px">
+          <a href="{% url 'request_detail' req.id %}" style="color:#111;text-decoration:none">
+            #{{ req.id }} {{ req.equipment }}
+          </a>
+          <span class="muted"> — {{ req.client }}</span>
+          <br>
+          <span class="muted">{{ req.status }} | {{ req.created }}</span>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+</div>
+{% else %}
+<div class="card">
+  <p class="muted">Нет активных заявок с назначенными мастерами.</p>
+</div>
+{% endif %}
+
+<div class="card">
+  <div class="card-title">Все активные заявки </div>
+  {% if active_reqs %}
+  <table>
+    <thead>
+      <tr><th>#</th><th>Клиент</th><th>Оборудование</th><th>Мастер</th><th>Статус</th><th>Создана</th></tr>
+    </thead>
+    <tbody>
+      {% for req in active_reqs %}
+      {% load status_labels %}
+      <tr>
+        <td><a href="{% url 'request_detail' req.pk %}">#{{ req.id }}</a></td>
+        <td>{{ req.client_name }}</td>
+        <td>{{ req.equipment_type }}</td>
+        <td>{{ req.assigned_master.get_full_name|default:req.assigned_master.username }}</td>
+        <td><span class="badge badge-{{ req.status }}">{{ req.status|status_ru }}</span></td>
+        <td>{{ req.created_at|date:"d.m.Y" }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% else %}
+  <p class="muted">Нет активных заявок.</p>
+  {% endif %}
+</div>
+{% endblock %}

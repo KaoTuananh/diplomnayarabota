@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="page-header">
+  <h2>Поставщики</h2>
+  <a href="{% url 'supplier_create' %}" class="btn">+ Добавить</a>
+</div>
+<div class="card">
+  {% if suppliers %}
+  <table>
+    <thead><tr><th>#</th><th>Название</th><th>Контакт</th><th>Телефон</th><th>Email</th><th></th></tr></thead>
+    <tbody>
+      {% for s in suppliers %}
+      <tr>
+        <td class="muted">{{ s.id }}</td>
+        <td><strong>{{ s.name }}</strong></td>
+        <td>{{ s.contact_name|default:"—" }}</td>
+        <td>{{ s.phone|default:"—" }}</td>
+        <td>{{ s.email|default:"—" }}</td>
+        <td><a href="{% url 'supplier_edit' s.pk %}" class="btn2 btn-sm">Изменить</a></td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% else %}
+  <p class="muted">Поставщиков нет.</p>
+  {% endif %}
+</div>
+{% endblock %}

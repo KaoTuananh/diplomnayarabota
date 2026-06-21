@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="page-header">
+  <h2>CRM — Оборудование</h2>
+  <div>
+    <a href="{% url 'equipment_create' %}" class="btn">+ Добавить оборудование</a>
+    <a href="{% url 'client_list' %}" class="btn2">Клиенты</a>
+  </div>
+</div>
+
+<div class="card">
+  <form method="get" style="display:flex;gap:8px;margin-bottom:12px">
+    <input name="q" value="{{ q }}" placeholder="Поиск по типу, марке, серийному номеру..." style="max-width:400px">
+    <button type="submit" class="btn btn-sm">Найти</button>
+    {% if q %}<a href="{% url 'equipment_list' %}" class="btn2 btn-sm">Сбросить</a>{% endif %}
+  </form>
+
+  {% if equipment %}
+  <table>
+    <thead>
+      <tr><th>#</th><th>Тип</th><th>Производитель / Модель</th><th>Серийный №</th><th>Клиент</th><th>Гарантия</th><th></th></tr>
+    </thead>
+    <tbody>
+      {% for eq in equipment %}
+      <tr>
+        <td class="muted">{{ eq.id }}</td>
+        <td><a href="{% url 'equipment_detail' eq.pk %}">{{ eq.equipment_type }}</a></td>
+        <td>{{ eq.brand }} {{ eq.model_name }}</td>
+        <td class="muted">{{ eq.serial_number|default:"—" }}</td>
+        <td><a href="{% url 'client_detail' eq.client.pk %}">{{ eq.client.name }}</a></td>
+        <td>
+          {% if eq.warranty_until %}
+            {% if eq.is_warranty_active %}
+              <span class="badge badge-done">до {{ eq.warranty_until|date:"d.m.Y" }}</span>
+            {% else %}
+              <span class="badge badge-red">истекла</span>
+            {% endif %}
+          {% else %}<span class="muted">—</span>{% endif %}
+        </td>
+        <td>
+          <a href="{% url 'equipment_detail' eq.pk %}" class="btn2 btn-sm">Открыть</a>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% else %}
+  <p class="muted">Оборудования не найдено.</p>
+  {% endif %}
+</div>
+{% endblock %}

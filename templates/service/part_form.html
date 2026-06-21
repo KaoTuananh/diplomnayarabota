@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="card">
+  <h2>{{ title }}</h2>
+  <form method="post">
+    {% csrf_token %}
+    {{ form.non_field_errors }}
+    <div class="row">
+      <div style="flex:1;min-width:260px">
+        <label>Название</label>
+        {{ form.name }}
+        {{ form.name.errors }}
+      </div>
+      <div style="flex:1;min-width:260px">
+        <label>SKU</label>
+        {{ form.sku }}
+        {{ form.sku.errors }}
+      </div>
+    </div>
+    <div class="row" style="margin-top:10px">
+      <div style="flex:1;min-width:260px">
+        <label>Количество</label>
+        {{ form.quantity }}
+      </div>
+      <div style="flex:1;min-width:260px">
+        <label>Цена</label>
+        {{ form.unit_cost }}
+      </div>
+    </div>
+    <div style="margin-top:12px">
+      <button class="btn" type="submit">Сохранить</button>
+      <a class="btn2" href="{% url 'parts_list' %}">Отмена</a>
+    </div>
+  </form>
+</div>
+{% endblock %}

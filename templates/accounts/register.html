@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="card">
+  <h2>Регистрация</h2>
+  <form method="post">
+    {% csrf_token %}
+    {{ form.non_field_errors }}
+    <div class="row">
+      <div style="flex:1;min-width:220px">
+        <label>Логин</label>
+        {{ form.username }}
+        {{ form.username.errors }}
+      </div>
+      <div style="flex:1;min-width:220px">
+        <label>E-mail</label>
+        {{ form.email }}
+        {{ form.email.errors }}
+      </div>
+    </div>
+    <div class="row" style="margin-top:10px">
+      <div style="flex:1;min-width:220px">
+        <label>Имя</label>
+        {{ form.first_name }}
+      </div>
+      <div style="flex:1;min-width:220px">
+        <label>Фамилия</label>
+        {{ form.last_name }}
+      </div>
+    </div>
+    <div class="row" style="margin-top:10px">
+      <div style="flex:1;min-width:220px">
+        <label>Пароль</label>
+        {{ form.password1 }}
+        {{ form.password1.errors }}
+      </div>
+      <div style="flex:1;min-width:220px">
+        <label>Повтор пароля</label>
+        {{ form.password2 }}
+        {{ form.password2.errors }}
+      </div>
+    </div>
+    <div style="margin-top:12px">
+      <button class="btn" type="submit">Создать аккаунт</button>
+      <a class="btn2" href="{% url 'login' %}">Назад к входу</a>
+    </div>
+  </form>
+</div>
+{% endblock %}

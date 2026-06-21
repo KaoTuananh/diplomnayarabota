@@ -1,0 +1,66 @@
+{% extends "base.html" %}
+{% load status_labels %}
+{% block content %}
+<div class="page-header">
+  <h2>{{ eq }}</h2>
+  <div>
+    {% if role == "manager" %}
+    <a href="{% url 'equipment_edit' eq.pk %}" class="btn2">Редактировать</a>
+    {% endif %}
+    <a href="{% url 'equipment_list' %}" class="btn2">← Оборудование</a>
+  </div>
+</div>
+
+<div class="row">
+  <div class="col">
+    <div class="card">
+      <div class="card-title">Характеристики</div>
+      <table>
+        <tr><td class="muted">Тип</td><td>{{ eq.equipment_type }}</td></tr>
+        <tr><td class="muted">Производитель</td><td>{{ eq.brand|default:"—" }}</td></tr>
+        <tr><td class="muted">Модель</td><td>{{ eq.model_name|default:"—" }}</td></tr>
+        <tr><td class="muted">Серийный №</td><td>{{ eq.serial_number|default:"—" }}</td></tr>
+        <tr><td class="muted">Клиент</td><td><a href="{% url 'client_detail' eq.client.pk %}">{{ eq.client.name }}</a></td></tr>
+        <tr><td class="muted">Дата покупки</td><td>{{ eq.purchase_date|date:"d.m.Y"|default:"—" }}</td></tr>
+        <tr>
+          <td class="muted">Гарантия</td>
+          <td>
+            {% if eq.warranty_until %}
+              {% if eq.is_warranty_active %}
+                <span class="badge badge-done">Активна до {{ eq.warranty_until|date:"d.m.Y" }}</span>
+              {% else %}
+                <span class="badge badge-red">Истекла {{ eq.warranty_until|date:"d.m.Y" }}</span>
+              {% endif %}
+            {% else %}—{% endif %}
+          </td>
+        </tr>
+      </table>
+      {% if eq.notes %}
+      <div style="margin-top:10px;font-size:13px;color:#555">{{ eq.notes }}</div>
+      {% endif %}
+    </div>
+  </div>
+</div>
+
+<div class="card">
+  <div class="card-title">История ремонтов этого оборудования</div>
+  {% if repair_history %}
+  <table>
+    <thead><tr><th>#</th><th>Дата</th><th>Проблема</th><th>Статус</th><th>Мастер</th></tr></thead>
+    <tbody>
+      {% for req in repair_history %}
+      <tr>
+        <td><a href="{% url 'request_detail' req.pk %}">#{{ req.id }}</a></td>
+        <td>{{ req.created_at|date:"d.m.Y" }}</td>
+        <td>{{ req.problem_description|truncatechars:60 }}</td>
+        <td><span class="badge badge-{{ req.status }}">{{ req.status|status_ru }}</span></td>
+        <td>{{ req.assigned_master.username|default:"—" }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% else %}
+  <p class="muted">Ремонтов не найдено{% if not eq.serial_number %} (серийный номер не указан){% endif %}.</p>
+  {% endif %}
+</div>
+{% endblock %}

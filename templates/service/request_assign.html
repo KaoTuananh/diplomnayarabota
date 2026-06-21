@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="card">
+  <h2>Назначение мастера для заявки #{{ obj.id }}</h2>
+  <form method="post">
+    {% csrf_token %}
+    {{ form.non_field_errors }}
+    <div style="max-width:420px">
+      <label>Мастер</label>
+      {{ form.assigned_master }}
+      {{ form.assigned_master.errors }}
+    </div>
+    <div style="margin-top:12px">
+      <button class="btn" type="submit">Сохранить</button>
+      <a class="btn2" href="{% url 'request_detail' obj.id %}">Отмена</a>
+    </div>
+  </form>
+</div>
+{% endblock %}

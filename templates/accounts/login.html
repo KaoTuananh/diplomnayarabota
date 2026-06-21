@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="card">
+  <h2>Вход</h2>
+  <form method="post">
+    {% csrf_token %}
+    {{ form.non_field_errors }}
+    <div class="row">
+      <div style="flex:1;min-width:220px">
+        <label>Логин</label>
+        {{ form.username }}
+        {{ form.username.errors }}
+      </div>
+      <div style="flex:1;min-width:220px">
+        <label>Пароль</label>
+        {{ form.password }}
+        {{ form.password.errors }}
+      </div>
+    </div>
+    <div style="margin-top:12px">
+      <button class="btn" type="submit">Войти</button>
+      <a class="btn2" href="{% url 'register' %}">Регистрация</a>
+    </div>
+  </form>
+</div>
+{% endblock %}

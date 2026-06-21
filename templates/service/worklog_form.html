@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="card">
+  <h2>Добавить запись работ по заявке #{{ obj.id }}</h2>
+  <form method="post">
+    {% csrf_token %}
+    {{ form.non_field_errors }}
+    <div class="row">
+      <div style="flex:1;min-width:220px">
+        <label>Дата</label>
+        {{ form.work_date }}
+      </div>
+      <div style="flex:1;min-width:220px">
+        <label>Часы</label>
+        {{ form.hours }}
+      </div>
+    </div>
+    <div style="margin-top:10px">
+      <label>Описание</label>
+      {{ form.description }}
+      {{ form.description.errors }}
+    </div>
+    <div style="margin-top:12px">
+      <button class="btn" type="submit">Сохранить</button>
+      <a class="btn2" href="{% url 'request_detail' obj.id %}">Отмена</a>
+    </div>
+  </form>
+</div>
+{% endblock %}

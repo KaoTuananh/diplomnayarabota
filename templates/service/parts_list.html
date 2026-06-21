@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="page-header">
+  <h2>Склад запчастей</h2>
+  <div>
+    {% if role == "manager" %}
+      <a class="btn" href="{% url 'part_create' %}">+ Добавить запчасть</a>
+      <a class="btn2" href="{% url 'low_stock_list' %}">⚠ Дефицит</a>
+      <a class="btn2" href="{% url 'adjustment_create' %}">Корректировка</a>
+    {% endif %}
+  </div>
+</div>
+
+<div class="card">
+  <table>
+    <thead>
+      <tr>
+        <th>Наименование</th><th>Артикул</th><th>Остаток</th><th>Зарезерв.</th><th>Доступно</th><th>Мин. остаток</th><th>Цена</th>
+        {% if role == "manager" %}<th></th>{% endif %}
+      </tr>
+    </thead>
+    <tbody>
+      {% for p in parts %}
+      <tr>
+        <td>
+          {{ p.name }}
+          {% if p.is_low_stock %}
+            <span class="badge badge-red" style="font-size:10px">Дефицит</span>
+          {% endif %}
+        </td>
+        <td class="muted">{{ p.sku }}</td>
+        <td><strong>{{ p.quantity }}</strong></td>
+        <td class="muted">{{ p.reserved_quantity }}</td>
+        <td>
+          {% if p.available_quantity == 0 %}
+            <span style="color:#dc2626;font-weight:600">0</span>
+          {% else %}
+            {{ p.available_quantity }}
+          {% endif %}
+        </td>
+        <td class="muted">{{ p.min_stock_level|default:"—" }}</td>
+        <td>{{ p.unit_cost }} ₽</td>
+        {% if role == "manager" %}
+          <td><a href="{% url 'part_edit' p.id %}" class="btn2 btn-sm">Изменить</a></td>
+        {% endif %}
+      </tr>
+      {% empty %}
+      <tr><td colspan="8" class="muted">Склад пуст</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}

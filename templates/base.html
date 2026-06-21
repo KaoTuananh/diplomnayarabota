@@ -1,0 +1,112 @@
+{% load roles %}
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{{ title|default:"RepairDesk" }}</title>
+  <style>
+    *{box-sizing:border-box}
+    body{font-family:Arial,sans-serif;margin:0;background:#f6f7fb;color:#111}
+    header{background:#111;color:#fff;padding:12px 18px;display:flex;gap:12px;align-items:center;justify-content:space-between;flex-wrap:wrap}
+    header a{color:#fff;text-decoration:none;margin-right:10px;font-size:14px}
+    header a:hover{opacity:.8}
+    .nav-group{display:flex;align-items:center;flex-wrap:wrap;gap:4px}
+    .nav-sep{color:#555;margin:0 4px}
+    .wrap{max-width:1200px;margin:18px auto;padding:0 14px}
+    .card{background:#fff;border:1px solid #e5e7eb;border-radius:10px;padding:16px;margin-bottom:14px}
+    .card-title{font-size:15px;font-weight:bold;margin:0 0 10px}
+    .row{display:flex;gap:12px;flex-wrap:wrap}
+    .col{flex:1;min-width:220px}
+    .btn{display:inline-block;background:#111;color:#fff;padding:8px 14px;border-radius:8px;text-decoration:none;border:0;cursor:pointer;font-size:13px}
+    .btn:hover{background:#333}
+    .btn2{display:inline-block;background:#fff;color:#111;padding:8px 14px;border-radius:8px;text-decoration:none;border:1px solid #ccc;cursor:pointer;font-size:13px}
+    .btn2:hover{border-color:#111}
+    .btn-sm{padding:5px 10px;font-size:12px;border-radius:6px}
+    .btn-danger{background:#dc2626;color:#fff;border:0}
+    .btn-success{background:#16a34a;color:#fff;border:0}
+    .btn-warn{background:#d97706;color:#fff;border:0}
+    table{width:100%;border-collapse:collapse}
+    th,td{border-bottom:1px solid #eee;padding:10px 12px;text-align:left;vertical-align:top}
+    th{background:#f9fafb;font-weight:600;font-size:13px;color:#555}
+    tr:hover td{background:#fafafa}
+    input,select,textarea{width:100%;padding:9px 12px;border-radius:8px;border:1px solid #d1d5db;box-sizing:border-box;font-size:14px}
+    input:focus,select:focus,textarea:focus{outline:none;border-color:#111}
+    textarea{min-height:100px}
+    .muted{color:#888;font-size:13px}
+    .badge{display:inline-block;padding:3px 9px;border-radius:999px;border:1px solid #ddd;font-size:11px;font-weight:600}
+    .badge-new{background:#eff6ff;border-color:#93c5fd;color:#1d4ed8}
+    .badge-in_work{background:#fef3c7;border-color:#fbbf24;color:#92400e}
+    .badge-wait_part{background:#fef9c3;border-color:#facc15;color:#713f12}
+    .badge-done{background:#f0fdf4;border-color:#86efac;color:#15803d}
+    .badge-red{background:#fef2f2;border-color:#fca5a5;color:#b91c1c}
+    .badge-grey{background:#f3f4f6;border-color:#d1d5db;color:#374151}
+    .err{color:#b00020;font-size:13px;margin-top:6px}
+    .success{color:#15803d;font-size:13px;margin-top:6px}
+    .stat-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px;margin-bottom:16px}
+    .stat-card{background:#fff;border:1px solid #e5e7eb;border-radius:10px;padding:14px;text-align:center}
+    .stat-num{font-size:28px;font-weight:700;line-height:1}
+    .stat-label{font-size:12px;color:#888;margin-top:4px}
+    .alert{padding:10px 14px;border-radius:8px;margin-bottom:12px;font-size:14px}
+    .alert-warn{background:#fef3c7;border:1px solid #fbbf24;color:#92400e}
+    .alert-info{background:#eff6ff;border:1px solid #93c5fd;color:#1d4ed8}
+    .notif-badge{background:#dc2626;color:#fff;border-radius:999px;padding:1px 6px;font-size:11px;margin-left:3px}
+    .form-group{margin-bottom:14px}
+    .form-group label{display:block;font-size:13px;font-weight:600;margin-bottom:4px;color:#374151}
+    h2{margin:0 0 16px;font-size:20px}
+    h3{margin:10px 0 8px;font-size:16px}
+    .page-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;flex-wrap:wrap;gap:8px}
+  </style>
+</head>
+<body>
+{% user_role user as role %}
+<header>
+  <div class="nav-group">
+    <a href="{% url 'dashboard' %}" style="font-weight:700;font-size:16px;margin-right:16px">RepairDesk</a>
+    {% if user.is_authenticated %}
+      <a href="{% url 'request_create' %}">+ Заявка</a>
+
+      {% if role == "manager" or role == "master" %}
+        <span class="nav-sep">|</span>
+        <a href="{% url 'parts_list' %}">Склад</a>
+        <a href="{% url 'client_list' %}">CRM</a>
+      {% endif %}
+
+      {% if role == "manager" %}
+        <span class="nav-sep">|</span>
+        <a href="{% url 'supplier_list' %}">Поставщики</a>
+        <a href="{% url 'purchase_list' %}">Закупки</a>
+        <a href="{% url 'low_stock_list' %}">Дефицит</a>
+        <a href="{% url 'adjustment_list' %}">Инвентаризация</a>
+        <span class="nav-sep">|</span>
+        <a href="{% url 'reports' %}">Аналитика</a>
+      {% endif %}
+
+      {% if role == "manager" or role == "master" %}
+        <span class="nav-sep">|</span>
+        <a href="{% url 'master_calendar' %}">Календарь</a>
+      {% endif %}
+    {% endif %}
+  </div>
+  <div class="nav-group">
+    {% if user.is_authenticated %}
+      {% if role == "manager" or role == "master" %}
+        <a href="{% url 'notifications_list' %}">
+          Уведомления
+          {% comment %}Badge count would require context processor{% endcomment %}
+        </a>
+      {% endif %}
+      <span class="muted" style="color:#aaa">{{ user.username }}</span>
+      <a href="{% url 'logout' %}">Выход</a>
+    {% else %}
+      <a href="{% url 'login' %}">Вход</a>
+      <a href="{% url 'register' %}">Регистрация</a>
+    {% endif %}
+  </div>
+</header>
+
+<div class="wrap">
+  {% block content %}{% endblock %}
+</div>
+</body>
+</html>

@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="page-header">
+  <h2>{{ title }}</h2>
+  <a href="{% url 'supplier_list' %}" class="btn2">← Назад</a>
+</div>
+<div class="card" style="max-width:600px">
+  <form method="post">
+    {% csrf_token %}
+    {% for field in form %}
+    <div class="form-group">
+      <label>{{ field.label }}</label>
+      {{ field }}
+      {% if field.errors %}<p class="err">{{ field.errors|join:", " }}</p>{% endif %}
+    </div>
+    {% endfor %}
+    <button type="submit" class="btn">Сохранить</button>
+  </form>
+</div>
+{% endblock %}

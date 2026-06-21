@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="page-header">
+  <h2>Дефицит запчастей</h2>
+  <div>
+    <a href="{% url 'purchase_create' %}" class="btn">Создать закупку</a>
+    <a href="{% url 'parts_list' %}" class="btn2">← Склад</a>
+  </div>
+</div>
+
+{% if parts %}
+<div class="alert alert-warn">
+  ⚠ Найдено {{ parts|length }} позиций ниже минимального остатка. Рекомендуется создать закупку.
+</div>
+<div class="card">
+  <table>
+    <thead>
+      <tr><th>Артикул</th><th>Название</th><th>Остаток</th><th>Минимум</th><th>Дефицит</th><th>Зарезервировано</th><th>Действие</th></tr>
+    </thead>
+    <tbody>
+      {% for p in parts %}
+      <tr>
+        <td><strong>{{ p.sku }}</strong></td>
+        <td>{{ p.name }}</td>
+        <td><span style="color:#dc2626;font-weight:700">{{ p.quantity }}</span></td>
+        <td>{{ p.min_stock_level }}</td>
+        <td style="color:#dc2626">-{{ p.min_stock_level|add:"-0" }}</td>
+        <td>{{ p.reserved_quantity }}</td>
+        <td>
+          <a href="{% url 'part_edit' p.pk %}" class="btn2 btn-sm">Изменить</a>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% else %}
+<div class="alert alert-info">
+  Все запчасти в норме — остатки выше минимальных.
+</div>
+{% endif %}
+{% endblock %}

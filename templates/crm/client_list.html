@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="page-header">
+  <h2>CRM — Клиенты</h2>
+  <div>
+    <a href="{% url 'client_create' %}" class="btn">+ Добавить клиента</a>
+    <a href="{% url 'equipment_list' %}" class="btn2">Оборудование</a>
+  </div>
+</div>
+
+<div class="card">
+  <form method="get" style="display:flex;gap:8px;margin-bottom:12px">
+    <input name="q" value="{{ q }}" placeholder="Поиск по имени или телефону..." style="max-width:360px">
+    <button type="submit" class="btn btn-sm">Найти</button>
+    {% if q %}<a href="{% url 'client_list' %}" class="btn2 btn-sm">Сбросить</a>{% endif %}
+  </form>
+
+  {% if clients %}
+  <table>
+    <thead>
+      <tr>
+        <th>#</th><th>Имя / Организация</th><th>Телефон</th><th>Email</th><th>Адрес</th><th>Действия</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for c in clients %}
+      <tr>
+        <td class="muted">{{ c.id }}</td>
+        <td><a href="{% url 'client_detail' c.pk %}"><strong>{{ c.name }}</strong></a></td>
+        <td>{{ c.phone|default:"—" }}</td>
+        <td>{{ c.email|default:"—" }}</td>
+        <td class="muted">{{ c.address|truncatechars:40|default:"—" }}</td>
+        <td>
+          <a href="{% url 'client_detail' c.pk %}" class="btn2 btn-sm">Открыть</a>
+          {% if role == "manager" %}
+          <a href="{% url 'client_edit' c.pk %}" class="btn2 btn-sm">Изменить</a>
+          {% endif %}
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% else %}
+  <p class="muted">Клиентов не найдено.</p>
+  {% endif %}
+</div>
+{% endblock %}
